@@ -1,0 +1,8 @@
+streamlit
+plotly
+pandas
+numpy
+openpyxl
+scikit-learn
+google-generativeai
+vaderSentiment
