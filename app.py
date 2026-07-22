@@ -11,7 +11,191 @@ import plotly.graph_objects as go
 import streamlit as st
 
 
-st.set_page_config(page_title="Batch Text Classifier Bot", layout="wide")
+st.set_page_config(page_title="Text Classification & Sentiment Analysis", layout="wide")
+
+# Custom CSS for premium, modern look
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Typography & Overall App Styles */
+html, body, [class*="css"], .stApp {
+    font-family: 'Outfit', sans-serif;
+    background-color: #f8fafc;
+}
+
+@media (prefers-color-scheme: dark) {
+    html, body, [class*="css"], .stApp {
+        background-color: #0f172a;
+    }
+}
+
+/* Gradient Header */
+.main-header {
+    background: linear-gradient(135deg, #7d5ba6 0%, #1e5f99 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.02em;
+}
+
+.sub-header {
+    font-size: 1.1rem;
+    color: #475569;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    max-width: 900px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .sub-header {
+        color: #94a3b8;
+    }
+}
+
+/* Styled Container Borders (Cards) */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background-color: #ffffff;
+    border-radius: 16px !important;
+    padding: 2rem !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+    border: 1px solid #f1f5f9 !important;
+    transition: all 0.3s ease !important;
+    margin-bottom: 1.5rem;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+    border-color: #e2e8f0 !important;
+    transform: translateY(-2px);
+}
+
+@media (prefers-color-scheme: dark) {
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2) !important;
+    }
+    div[data-testid="stVerticalBlockBorderWrapper"]:hover {
+        border-color: #475569 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+}
+
+/* Primary buttons style overrides */
+button[kind="primary"] {
+    background: linear-gradient(135deg, #1fa37a 0%, #1e5f99 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 0.6rem 2.5rem !important;
+    font-weight: 600 !important;
+    font-size: 1.05rem !important;
+    box-shadow: 0 4px 15px rgba(31, 163, 122, 0.25) !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer;
+}
+
+button[kind="primary"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(31, 163, 122, 0.4) !important;
+    background: linear-gradient(135deg, #22b386 0%, #206fae 100%) !important;
+}
+
+button[kind="primary"]:active {
+    transform: translateY(0px) !important;
+}
+
+/* Custom Metrics styling */
+div[data-testid="stMetric"] {
+    background-color: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    transition: all 0.3s ease;
+}
+
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    border-color: #e2e8f0;
+}
+
+@media (prefers-color-scheme: dark) {
+    div[data-testid="stMetric"] {
+        background-color: #1e293b;
+        border-color: #334155;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    div[data-testid="stMetric"]:hover {
+        border-color: #475569;
+    }
+}
+
+/* File Uploader styling */
+div[data-testid="stFileUploader"] {
+    background-color: #fafafa;
+    border: 2px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+div[data-testid="stFileUploader"]:hover {
+    border-color: #1e5f99;
+}
+
+@media (prefers-color-scheme: dark) {
+    div[data-testid="stFileUploader"] {
+        background-color: #1e293b;
+        border-color: #475569;
+    }
+}
+
+/* Sidebar Custom Styling */
+section[data-testid="stSidebar"] {
+    background-color: #ffffff;
+    border-right: 1px solid #f1f5f9;
+}
+
+@media (prefers-color-scheme: dark) {
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a;
+        border-right: 1px solid #1e293b;
+    }
+}
+
+/* Sidebar widget container */
+section[data-testid="stSidebar"] .element-container {
+    margin-bottom: 0.8rem;
+}
+
+/* Custom badge styling */
+.badge-pill {
+    padding: 0.25em 0.6em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 10rem;
+    display: inline-block;
+}
+.badge-pos { background-color: #d1fae5; color: #065f46; }
+.badge-neg { background-color: #fee2e2; color: #991b1b; }
+.badge-neu { background-color: #f3f4f6; color: #374151; }
+
+@media (prefers-color-scheme: dark) {
+    .badge-pos { background-color: #065f46; color: #d1fae5; }
+    .badge-neg { background-color: #991b1b; color: #fee2e2; }
+    .badge-neu { background-color: #374151; color: #f3f4f6; }
+}
+</style>
+""", unsafe_allow_html=True)
 
 DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
 
@@ -604,6 +788,7 @@ def render_output_analysis(df: pd.DataFrame) -> None:
             margin=dict(t=28, b=28, l=28, r=28),
             showlegend=False,
             paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="Outfit, sans-serif")
         )
         st.plotly_chart(fig_donut, use_container_width=True)
 
@@ -619,7 +804,7 @@ def render_output_analysis(df: pd.DataFrame) -> None:
                     y=top_df["count"],
                     marker=dict(
                         color=top_df["count"],
-                        colorscale=[[0, "#6eb5ff"], [1, "#1e5f99"]],
+                        colorscale=[[0, "#a78bfa"], [1, "#4f46e5"]],
                         showscale=False,
                     ),
                     hovertemplate="<b>%{x}</b><br>Rows: %{y}<extra></extra>",
@@ -633,8 +818,9 @@ def render_output_analysis(df: pd.DataFrame) -> None:
             yaxis_title="Row count",
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            yaxis=dict(gridcolor="rgba(128,128,128,0.2)", zeroline=False),
+            yaxis=dict(gridcolor="rgba(128,128,128,0.1)", zeroline=False),
             xaxis=dict(tickangle=-32),
+            font=dict(family="Outfit, sans-serif")
         )
         st.plotly_chart(fig_topics, use_container_width=True)
 
@@ -661,8 +847,9 @@ def render_output_analysis(df: pd.DataFrame) -> None:
         yaxis_title="Rows",
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        yaxis=dict(gridcolor="rgba(128,128,128,0.2)", zeroline=False),
+        yaxis=dict(gridcolor="rgba(128,128,128,0.1)", zeroline=False),
         xaxis=dict(tickangle=-25),
+        font=dict(family="Outfit, sans-serif")
     )
     st.plotly_chart(fig_len, use_container_width=True)
 
@@ -678,7 +865,11 @@ def render_output_analysis(df: pd.DataFrame) -> None:
 
 
 def main():
-    st.title("Text Classifier Chat Bot")
+    st.markdown("<h1 class='main-header'>Text Classification & Sentiment Analysis</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='sub-header'>Upload a CSV/XLSX file. Remarks are processed in batches of 20 to generate Summary, Topic, and Sentiment. Choose Local (no API key) or Gemini (better summaries & multilingual support). Download the results as an XLSX file.</div>",
+        unsafe_allow_html=True
+    )
 
     st.sidebar.header("Processing")
     engine = st.sidebar.radio(
@@ -711,63 +902,63 @@ def main():
             "Free tier is enough for learning."
         )
 
-    st.markdown(
-        "Upload a dataset (`.csv` / `.xlsx`). Remarks are processed in **batches of 20**: "
-        "**summarized** text, **topic** (your list or auto-generated labels), and **sentiment**. "
-        "Choose **Local** if you have no API key, or **Gemini** for smarter summaries and multilingual handling. "
-        "Download **.xlsx** with Original Remark, Summarized Remark, Topic, Sentiment."
-    )
+    col1, col2 = st.columns(2)
+    remark_col_selected: Optional[str] = None
 
-    uploaded_dataset = st.file_uploader("Upload File", type=["csv", "xlsx"], key="dataset_uploader")
+    with col1:
+        with st.container(border=True):
+            st.markdown("### 📊 1. Upload Dataset")
+            uploaded_dataset = st.file_uploader("Upload CSV or XLSX file:", type=["csv", "xlsx"], key="dataset_uploader")
+            
+            if uploaded_dataset is not None:
+                try:
+                    raw_df_preview = read_uploaded_dataset(uploaded_dataset)
+                    cols = list(raw_df_preview.columns)
+                    if not cols:
+                        st.error("The file has no columns (empty header row?).")
+                    else:
+                        auto_col, _ = detect_remarks_column(raw_df_preview)
+                        default_col = default_remarks_column_for_selectbox(raw_df_preview)
+                        default_idx = cols.index(default_col) if default_col in cols else 0
+                        default_idx = min(max(default_idx, 0), len(cols) - 1)
 
-    st.subheader("Topics (Input #2)")
-    topics_text = st.text_area(
-        "Enter topics (comma-separated). Leave blank to auto-generate.",
-        height=90,
-        placeholder="Topic A, Topic B, Topic C",
-        key="topics_text",
-    )
-    uploaded_topic_file = st.file_uploader("Or upload a topic file (must contain a `Topic` column).", type=["csv", "xlsx"], key="topic_uploader")
+                        if auto_col:
+                            st.success(
+                                f"Auto-detected remarks column: `{auto_col}`"
+                            )
+                        else:
+                            st.info(
+                                "No remarks column matched by name. Pick the column that contains feedback text below."
+                            )
 
-    topic_count = st.number_input("Auto-generate topic count (when topics are empty)", min_value=3, max_value=30, value=10, step=1)
+                        remark_col_selected = st.selectbox(
+                            "Select feedback comment column:",
+                            options=cols,
+                            index=default_idx,
+                            key="remarks_column_pick",
+                            help="Use this if your file uses a non-standard column name or feedback is in an Unnamed column.",
+                        )
+                except Exception as e:
+                    st.error(f"Failed to read uploaded dataset: {e}")
+
+    with col2:
+        with st.container(border=True):
+            st.markdown("### 🏷️ 2. Define Topics")
+            topics_text = st.text_area(
+                "Enter topics (comma or newline separated). Leave blank to auto-generate:",
+                height=90,
+                placeholder="Topic A, Topic B, Topic C",
+                key="topics_text",
+            )
+            uploaded_topic_file = st.file_uploader("Or upload a topic file (must contain a `Topic` column):", type=["csv", "xlsx"], key="topic_uploader")
+            topic_count = st.number_input("Auto-generate topic count if empty:", min_value=3, max_value=30, value=10, step=1)
 
     batch_size = 20  # Strict requirement
 
-    start = st.button("Generate Output", type="primary", disabled=uploaded_dataset is None)
-
-    remark_col_selected: Optional[str] = None
-    if uploaded_dataset is not None:
-        try:
-            raw_df_preview = read_uploaded_dataset(uploaded_dataset)
-            cols = list(raw_df_preview.columns)
-            if not cols:
-                st.error("The file has no columns (empty header row?).")
-            else:
-                auto_col, _ = detect_remarks_column(raw_df_preview)
-                default_col = default_remarks_column_for_selectbox(raw_df_preview)
-                default_idx = cols.index(default_col) if default_col in cols else 0
-                default_idx = min(max(default_idx, 0), len(cols) - 1)
-
-                if auto_col:
-                    st.success(
-                        f"Auto-detected remarks column: `{auto_col}` "
-                        "(headers like Topics, Summarization, Sentiment, and Unnamed:* are skipped for auto-detect)."
-                    )
-                else:
-                    st.info(
-                        "No remarks column matched by name. Pick the column that contains feedback text below. "
-                        "Auto-detect skips: Topics, Topic, Summarization, Summary, Sentiment, and Unnamed:*."
-                    )
-
-                remark_col_selected = st.selectbox(
-                    "Remarks / feedback column",
-                    options=cols,
-                    index=default_idx,
-                    key="remarks_column_pick",
-                    help="Use this if your file uses a non-standard column name or feedback is in an Unnamed column.",
-                )
-        except Exception as e:
-            st.error(f"Failed to read uploaded dataset: {e}")
+    st.write("") # Spacer
+    col_btn_l, col_btn_c, col_btn_r = st.columns([1, 2, 1])
+    with col_btn_c:
+        start = st.button("🚀 Generate Analysis", type="primary", disabled=uploaded_dataset is None, use_container_width=True)
 
     if start:
         # Clear previous run outputs
